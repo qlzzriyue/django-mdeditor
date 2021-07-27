@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import os
 import datetime
+import uuid
 
 from django.views import generic
 from django.conf import settings
@@ -12,6 +13,8 @@ from .configs import MDConfig
 # TODO 此处获取default配置，当用户设置了其他配置时，此处无效，需要进一步完善
 MDEDITOR_CONFIGS = MDConfig('default')
 
+def custom_image_path(instance, filename):
+    return uuid.uuid4().hex[:10]
 
 class UploadView(generic.View):
     """ upload image file """
@@ -35,7 +38,9 @@ class UploadView(generic.View):
         # image format check
         file_name_list = upload_image.name.split('.')
         file_extension = file_name_list.pop(-1)
-        file_name = '.'.join(file_name_list)
+
+        file_name = custom_image_path(upload_image,upload_image.name)
+
         if file_extension not in MDEDITOR_CONFIGS['upload_image_formats']:
             return JsonResponse({
                 'success': 0,
